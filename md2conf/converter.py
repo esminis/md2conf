@@ -271,7 +271,8 @@ class ConfluenceStorageFormatConverter(NodeVisitor):
         # the absolute path in the page metadata dictionary to discover the relative path
         # within Confluence that should be used
         absolute_path = os.path.abspath(os.path.join(self.base_path, relative_url.path))
-        if not absolute_path.startswith(self.base_path):
+        link_metadata = self.page_metadata.get(absolute_path)
+        if not absolute_path.startswith(self.base_path) and link_metadata is None:
             msg = f"relative URL points to outside base path: {url}"
             if self.options.ignore_invalid_url:
                 LOGGER.warning(msg)
@@ -282,7 +283,6 @@ class ConfluenceStorageFormatConverter(NodeVisitor):
 
         relative_path = os.path.relpath(absolute_path, self.base_path)
 
-        link_metadata = self.page_metadata.get(absolute_path)
         if link_metadata is None:
             msg = f"unable to find matching page for URL: {url}"
             if self.options.ignore_invalid_url:
